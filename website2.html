@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grocery System</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        h1, h2 {
+            color: #444;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        input, select, button {
+            margin: 10px 0;
+            padding: 12px 15px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .links {
+            margin-bottom: 30px;
+        }
+
+        .links button {
+            margin: 0 5px;
+            padding: 10px 25px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .links button:hover {
+            background-color: #218838;
+        }
+
+        #searchBar {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 300px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        #stockList, #productList {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        #stockList div, #productList div {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        #stockList div:last-child, #productList div:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to the Grocery System</h1>
+    <div class="links">
+        <button onclick="showLogin()">Login</button>
+    </div>
+
+    <!-- Login Form -->
+    <div id="loginSection" style="display:none;">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <input type="text" id="username" placeholder="Username" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <select id="role">
+                <option value="shopkeeper">Shopkeeper</option>
+                <option value="customer">Customer</option>
+            </select>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+
+    <!-- Shopkeeper Dashboard -->
+    <div id="shopkeeperSection" style="display:none;">
+        <h2>Shopkeeper Dashboard</h2>
+        <form id="stockForm">
+            <input type="text" id="productName" placeholder="Product Name" required>
+            <input type="number" id="productQuantity" placeholder="Quantity" required>
+            <button type="submit">Update Stock</button>
+        </form>
+        <div id="stockList"></div>
+    </div>
+
+    <!-- Customer Dashboard -->
+    <div id="customerSection" style="display:none;">
+        <h2>Customer Dashboard</h2>
+        <input type="text" id="searchBar" placeholder="Search products..." onkeyup="filterProducts()">
+        <div id="productList"></div>
+    </div>
+
+    <script>
+        // Mock user data
+        const users = {
+            shopkeeper: { username: "shopkeeper", password: "shop123" },
+            customer: { username: "customer", password: "cust123" }
+        };
+
+        // Mock stock data
+        let stock = [];
+
+        // Show login section
+        function showLogin() {
+            document.querySelector('h1').style.display = 'none';
+            document.querySelector('.links').style.display = 'none';
+            document.getElementById('loginSection').style.display = 'block';
+        }
+
+        // Login logic
+        document.getElementById("loginForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            const role = document.getElementById("role").value;
+
+            if (username === users[role].username && password === users[role].password) {
+                document.getElementById("loginSection").style.display = "none";
+                if (role === "shopkeeper") {
+                    document.getElementById("shopkeeperSection").style.display = "block";
+                } else if (role === "customer") {
+                    document.getElementById("customerSection").style.display = "block";
+                    displayProducts();
+                }
+            } else {
+                alert("Invalid credentials");
+            }
+        });
+
+        // Shopkeeper stock management
+        document.getElementById("stockForm")?.addEventListener("submit", function (e) {
+            e.preventDefault();
+            const productName = document.getElementById("productName").value;
+            const productQuantity = document.getElementById("productQuantity").value;
+            stock.push({ name: productName, quantity: productQuantity });
+            updateStockList();
+        });
+
+        // Display stock for shopkeepers
+        function updateStockList() {
+            const stockList = document.getElementById("stockList");
+            stockList.innerHTML = "<h3>Stock List</h3>";
+            stock.forEach(item => {
+                const div = document.createElement("div");
+                div.textContent = `${item.name} - ${item.quantity}`;
+                stockList.appendChild(div);
+            });
+        }
+
+        // Display products for customers
+        function displayProducts() {
+            const productList = document.getElementById("productList");
+            productList.innerHTML = "<h3>Available Products</h3>";
+            stock.forEach(item => {
+                const div = document.createElement("div");
+                div.textContent = `${item.name} - ${item.quantity}`;
+                productList.appendChild(div);
+            });
+        }
+
+        // Filter products based on search input
+        function filterProducts() {
+            const searchQuery = document.getElementById("searchBar").value.toLowerCase();
+            const productList = document.getElementById("productList");
+            productList.innerHTML = "<h3>Available Products</h3>";
+            stock.filter(item => item.name.toLowerCase().includes(searchQuery))
+                 .forEach(item => {
+                     const div = document.createElement("div");
+                     div.textContent = `${item.name} - ${item.quantity}`;
+                     productList.appendChild(div);
+                 });
+        }
+    </script>
+</body>
+</html>
